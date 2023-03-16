@@ -17,11 +17,41 @@ namespace Audit.WebApi.Template.Controllers
             _provider = provider;
         }
 
+        // Getting NotSupportedException: The type 'Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[System.String]' can only be serialized using async serialization methods.
+        // See https://github.com/dotnet/runtime/issues/61044
+
+        /*
+         * System.Text.Json.ThrowHelper.ThrowNotSupportedException_TypeRequiresAsyncSerialization(Type propertyType)
+         * System.Text.Json.Serialization.Converters.IAsyncEnumerableOfTConverter<TAsyncEnumerable, TElement>.OnTryWrite(Utf8JsonWriter writer, TAsyncEnumerable value, JsonSerializerOptions options, ref WriteStack state)
+         * System.Text.Json.Serialization.JsonConverter<T>.TryWrite(Utf8JsonWriter writer, ref T value, JsonSerializerOptions options, ref WriteStack state)
+         * System.Text.Json.Serialization.JsonConverter<T>.TryWriteAsObject(Utf8JsonWriter writer, object value, JsonSerializerOptions options, ref WriteStack state)
+         * System.Text.Json.Serialization.JsonConverter<T>.TryWrite(Utf8JsonWriter writer, ref T value, JsonSerializerOptions options, ref WriteStack state)
+         * System.Text.Json.Serialization.Metadata.JsonPropertyInfo<T>.GetMemberAndWriteJson(object obj, ref WriteStack state, Utf8JsonWriter writer)
+         * System.Text.Json.Serialization.Converters.ObjectDefaultConverter<T>.OnTryWrite(Utf8JsonWriter writer, T value, JsonSerializerOptions options, ref WriteStack state)
+         * System.Text.Json.Serialization.JsonConverter<T>.TryWrite(Utf8JsonWriter writer, ref T value, JsonSerializerOptions options, ref WriteStack state)
+         * System.Text.Json.Serialization.Metadata.JsonPropertyInfo<T>.GetMemberAndWriteJson(object obj, ref WriteStack state, Utf8JsonWriter writer)
+         * System.Text.Json.Serialization.Converters.ObjectDefaultConverter<T>.OnTryWrite(Utf8JsonWriter writer, T value, JsonSerializerOptions options, ref WriteStack state)
+         * System.Text.Json.Serialization.JsonConverter<T>.TryWrite(Utf8JsonWriter writer, ref T value, JsonSerializerOptions options, ref WriteStack state)
+         * System.Text.Json.Serialization.Metadata.JsonPropertyInfo<T>.GetMemberAndWriteJson(object obj, ref WriteStack state, Utf8JsonWriter writer)
+         * System.Text.Json.Serialization.Converters.ObjectDefaultConverter<T>.OnTryWrite(Utf8JsonWriter writer, T value, JsonSerializerOptions options, ref WriteStack state)
+         * System.Text.Json.Serialization.JsonConverter<T>.TryWrite(Utf8JsonWriter writer, ref T value, JsonSerializerOptions options, ref WriteStack state)
+         * System.Text.Json.Serialization.JsonConverter<T>.WriteCore(Utf8JsonWriter writer, ref T value, JsonSerializerOptions options, ref WriteStack state)
+         */
+
         // GET api/values
+        // [HttpGet]
+        // public ActionResult<IEnumerable<string>> Get()
+        // {
+        //     return Ok(_provider.GetValues());
+        // }
+
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public async IAsyncEnumerable<string?> GetAsync()
         {
-            return Ok(_provider.GetValues());
+            await foreach (var value in _provider.GetValuesAsync())
+            {
+                yield return value;
+            }
         }
 
         // GET api/values/5

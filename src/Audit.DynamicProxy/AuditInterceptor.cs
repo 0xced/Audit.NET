@@ -69,6 +69,29 @@ namespace Audit.DynamicProxy
             return result;
         }
 
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Intercept an asynchronous enumerable operation.
+        /// </summary>
+        private static async Task InterceptAsync<T>(IAsyncEnumerable<T> enumerable, IInvocation invocation, InterceptEvent intEvent, IAuditScope scope)
+        {
+            // Note that I have no idea what I'm doing here! Proof => still getting exceptions when hitting http://localhost:5000/api/values :-D
+            // InvalidCastException: Unable to cast object of type 'System.Threading.Tasks.Task`1[System.Threading.Tasks.VoidTaskResult]' to type 'System.Collections.Generic.IAsyncEnumerable`1[System.String]'.
+            // What does it even mean to intercept an IAsyncEnumerable<T> ???
+            try
+            {
+                await foreach (var _ in enumerable)
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                EndAsyncAuditInterceptEvent(Task.FromException(ex), invocation, intEvent, scope, null);
+                throw;
+            }
+            EndAsyncAuditInterceptEvent(Task.CompletedTask, invocation, intEvent, scope, null);
+        }
+#endif
         /// <summary>
         /// Ends the event for asynchronous interceptions.
         /// </summary>
@@ -208,6 +231,10 @@ namespace Audit.DynamicProxy
             var method = invocation.MethodInvocationTarget;
             var eventType = Settings.EventType?.Replace("{class}", intEvent.ClassName).Replace("{method}", intEvent.MethodName);
             var isAsync = method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
+#if NET6_0
+            var isAsyncEnumerable = method.ReturnType.IsGenericType && method.ReturnType.GetGenericTypeDefinition().IsAssignableTo(typeof(IAsyncEnumerable<>));
+            isAsync = isAsync || isAsyncEnumerable;
+#endif
             intEvent.IsAsync = isAsync;
             var auditEventIntercept = new AuditEventIntercept()
             {
@@ -244,6 +271,13 @@ namespace Audit.DynamicProxy
                     return;
                 }
             }
+#if NET6_0_OR_GREATER
+            if (isAsyncEnumerable)
+            {
+                invocation.ReturnValue = InterceptAsync((dynamic)invocation.ReturnValue, invocation, intEvent, scope);
+                return;
+            }
+#endif
             // Is a Sync method (or an Async method that does not returns a Task or Task<>).
             // Avoid Task and Task<T> serialization (i.e. when a sync method returns a Task)
             object returnValue = typeof(Task).IsAssignableFrom(returnType) ? null : invocation.ReturnValue;

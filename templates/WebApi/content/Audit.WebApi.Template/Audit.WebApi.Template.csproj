@@ -32,12 +32,17 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="*" />
 		<PackageReference Include="Audit.WebApi.Core" Version="*" />
 		<!--#if (EnableEntityFramework)-->
-		<PackageReference Include="Audit.EntityFramework.Core" Version="*" />
+<!--		<PackageReference Include="Audit.EntityFramework.Core" Version="*" />-->
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="*" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="*" />
 		<!--#endif-->
 		<!--#if (ServiceInterception)-->
-		<PackageReference Include="Audit.DynamicProxy" Version="*" />
+<!--		<PackageReference Include="Audit.DynamicProxy" Version="*" />-->
 		<!--#endif-->
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\..\src\Audit.DynamicProxy\Audit.DynamicProxy.csproj" />
+	  <ProjectReference Include="..\..\..\..\src\Audit.EntityFramework.Core\Audit.EntityFramework.Core.csproj" />
 	</ItemGroup>
 </Project>

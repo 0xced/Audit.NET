@@ -5,7 +5,7 @@
     <Copyright>Copyright 2019</Copyright>
     <AssemblyTitle>Audit.DynamicProxy</AssemblyTitle>
     <Authors>Federico Colombo</Authors>
-    <TargetFrameworks>netstandard1.5;net45;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard1.5;net45;net461;net6.0</TargetFrameworks>
     <DefineConstants>$(DefineConstants);STRONG_NAME</DefineConstants>
     <NoWarn>1701;1702;1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

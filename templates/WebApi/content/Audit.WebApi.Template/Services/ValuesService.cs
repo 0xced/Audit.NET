@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 #if EnableEntityFramework
@@ -26,6 +26,11 @@ namespace Audit.WebApi.Template.Services
         public IEnumerable<string?> GetValues()
         {
             return _dbContext.Values.Select(x => x.Value);
+        }
+
+        public IAsyncEnumerable<string?> GetValuesAsync()
+        {
+            return _dbContext.Values.Select(x => x.Value).AsAsyncEnumerable();
         }
 
         public async Task<string?> GetAsync(int id)
